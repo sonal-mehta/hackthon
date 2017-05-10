@@ -17,12 +17,6 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-
-/**
- * A dirty simple program that reads an Excel file.
- *
- * @author www.codejava.net
- */
 public class Swipe {
 	static List<SwipeRecord> recordsMapList = new ArrayList<SwipeRecord>();
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
