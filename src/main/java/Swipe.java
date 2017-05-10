@@ -68,10 +68,10 @@ public class Swipe {
 							case 5:
 								Date dateValue = fmt.parse(cell.getStringCellValue());
 								if (isExisting) {
-									swipeRecord.getDate().add(dateValue);
+									swipeRecord.getAbsentDates().add(dateValue);
 								} else {
 									dates.add(dateValue);
-									swipeRecord.setDate(dates);
+									swipeRecord.setAbsentDates(dates);
 								}
 								break;
 							case 6:
