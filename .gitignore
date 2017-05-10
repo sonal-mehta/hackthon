@@ -1,6 +1,8 @@
-.idea/
+.idea/*
 *.iml
 *.iws
+*.class
 .DS_Store
-log/
-target/
+log/*
+target/*
+target/classes/*

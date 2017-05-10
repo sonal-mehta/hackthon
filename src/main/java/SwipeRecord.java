@@ -41,15 +41,6 @@ public class SwipeRecord {
 		this.presentDates = presentDates;
 	}
 
-
-	public List<Date> getAbsentDates() {
-		return absentDates;
-	}
-
-	public void setAbsentDates(List<Date> absentDates) {
-		this.absentDates = absentDates;
-	}
-
 	public String getFirstIn() {
 		return firstIn;
 	}
@@ -66,10 +57,16 @@ public class SwipeRecord {
 		this.lastOut = lastOut;
 	}
 
+	public List<Date> getAbsentDates() {
+		return absentDates;
+	}
 	public List<Date> getPtoAppliedInNamelyMailNotSent() {
 		return ptoAppliedInNamelyMailNotSent;
 	}
 
+	public void setAbsentDates(List<Date> absentDates) {
+		this.absentDates = absentDates;
+	}
 	public List<Date> getPtoMailSentNotAppliedInNamely() {
 		return ptoMailSentNotAppliedInNamely;
 	}

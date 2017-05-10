@@ -21,16 +21,12 @@ public class Month {
 		List<String> holiDays = new ArrayList<String>();
 		List<Date> masterDays = new ArrayList<Date>();
 		try {
-			//	Date startDate = fmt.parse("20/03/2017");
-			//Date endDate = fmt.parse("20/04/2017");
 			workDays = getWorkingDaysBetweenTwoDates(startDate, endDate);
 			holiDays = getHolidays();
 			workDays.removeAll(holiDays);
-
 			for (String work : workDays) {
 				masterDays.add(fmt.parse(work));
 			}
-
 			return masterDays;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -42,15 +38,13 @@ public class Month {
 		List<String> workDays = new ArrayList<String>();
 		Calendar startCal = Calendar.getInstance();
 		startCal.setTime(startDate);
-
 		Calendar endCal = Calendar.getInstance();
 		endCal.setTime(endDate);
 
 		if (startCal.getTimeInMillis() == endCal.getTimeInMillis()) {
-			return null;
-		}
-
-		if (startCal.getTimeInMillis() > endCal.getTimeInMillis()) {
+			workDays.add(fmt.format(startCal.getTime()));
+			return workDays;
+		} else if (startCal.getTimeInMillis() > endCal.getTimeInMillis()) {
 			startCal.setTime(endDate);
 			endCal.setTime(startDate);
 		}
@@ -75,5 +69,4 @@ public class Month {
 		}
 		return null;
 	}
-
 }

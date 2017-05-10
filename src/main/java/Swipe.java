@@ -10,6 +10,8 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -20,17 +22,28 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Swipe {
 	static List<SwipeRecord> recordsMapList = new ArrayList<SwipeRecord>();
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
-	static String empId;
+	static Date startDate, endDate;
 
 	public static void main(String[] args) throws IOException {
-		getList();
+		try {
+			List<Date> presentDate = new ArrayList<Date>();
+			String excelFilePath = "//Users//sonalmehta//Downloads//Ref data.xlsx";
+			recordsMapList = getList(excelFilePath);
+			for (SwipeRecord record : recordsMapList) {
+				List<Date> days = Month.getWorkDays(startDate, endDate);
+				presentDate = record.getPresentDates();
+				days.removeAll(presentDate);
+				record.setAbsentDates(days);
+			}
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 	}
 
-	public static void getList() throws IOException {
-
-		String excelFilePath = "//Users//sonalmehta//Downloads//Ref data.xlsx";
+	public static List<SwipeRecord> getList(String excelFilePath) throws IOException {
 		excelFilePath = excelFilePath.replace("//", File.separator);
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+		String[] startEndDates;
 
 		Workbook workbook = new XSSFWorkbook(inputStream);
 		Sheet firstSheet = workbook.getSheetAt(0);
@@ -44,10 +57,13 @@ public class Swipe {
 				SwipeRecord swipeRecord = null;
 				boolean isExisting = false;
 				while (cellIterator.hasNext()) {
-
 					Cell cell = cellIterator.next();
-					if (cell.getRowIndex() > 4) {
-
+					if (cell.getRowIndex() == 1 && cell.getColumnIndex() == 0) {
+						String heading = cell.getStringCellValue();
+						startEndDates = getStartEndDate(heading);
+						startDate = fmt.parse(startEndDates[0]);
+						endDate = fmt.parse(startEndDates[1]);
+					} else if (cell.getRowIndex() > 4) {
 						int colIndex = cell.getColumnIndex();
 						switch (colIndex) {
 							case 0:
@@ -68,10 +84,10 @@ public class Swipe {
 							case 5:
 								Date dateValue = fmt.parse(cell.getStringCellValue());
 								if (isExisting) {
-									swipeRecord.getAbsentDates().add(dateValue);
+									swipeRecord.getPresentDates().add(dateValue);
 								} else {
 									dates.add(dateValue);
-									swipeRecord.setAbsentDates(dates);
+									swipeRecord.setPresentDates(dates);
 								}
 								break;
 							case 6:
@@ -83,7 +99,6 @@ public class Swipe {
 						}
 					}
 				}
-
 				if (!isExisting && swipeRecord != null) {
 					recordsMapList.add(swipeRecord);
 				}
@@ -93,6 +108,7 @@ public class Swipe {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		return recordsMapList;
 	}
 
 	private static SwipeRecord isExisting(String empId) {
@@ -102,6 +118,17 @@ public class Swipe {
 			}
 		}
 		return null;
+	}
+
+	private static String[] getStartEndDate(String desc) {
+		int count = 0;
+		String[] allMatches = new String[2];
+		Matcher m = Pattern.compile("[\\d]{2}[\\/][\\d]{2}[\\/][\\d]{4}").matcher(desc);
+		while (m.find()) {
+			allMatches[count] = m.group();
+			count++;
+		}
+		return allMatches;
 	}
 
 }
