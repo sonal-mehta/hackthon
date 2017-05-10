@@ -37,7 +37,9 @@ public class MailClient {
 			if (employee.getNoPTOnoWFH().size() > 0) {
 				String abscentContent = "As per our record, you were absent on following dates:\n";
 				for (Date date : employee.getNoPTOnoWFH()) {
-					abscentContent = abscentContent + date.toString() + "\n";
+					if (!(date.compareTo(Swipe.startDate) < 0 || date.compareTo(Swipe.endDate) > 0)) {
+						abscentContent = abscentContent + date.toString() + "\n";
+					}
 				}
 				abscentContent = abscentContent + "Note : Please apply leave on namely or in case you were doing WFH then drop a mail to attendance.";
 				sendmail(getEmailAddress(employee.getEmpName()), "Attendance Reminder", name + abscentContent);
@@ -46,7 +48,9 @@ public class MailClient {
 			if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
 				String sendMailToAttendance = "As per our record, you have applied PTO but didn't sent mail to attendance@appdirect.com for following dates:\n";
 				for (Date date : employee.getPtoAppliedInNamelyMailNotSent()) {
-					sendMailToAttendance = sendMailToAttendance + date.toString() + "\n";
+					if (!(date.compareTo(Swipe.startDate) < 0 || date.compareTo(Swipe.endDate) > 0)) {
+						sendMailToAttendance = sendMailToAttendance + date.toString() + "\n";
+					}
 				}
 				sendmail(getEmailAddress(employee.getEmpName()), "PTO Notification", name + sendMailToAttendance);
 			}
@@ -54,7 +58,9 @@ public class MailClient {
 			if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
 				String applyLeave = "As per our record, you have sent an email to attendance@appdirect.com for PTO but you have not applied leave on namely for following dates:\n";
 				for (Date date : employee.getPtoMailSentNotAppliedInNamely()) {
-					applyLeave = applyLeave + date.toString() + "\n";
+					if (!(date.compareTo(Swipe.startDate) < 0 || date.compareTo(Swipe.endDate) > 0)) {
+						applyLeave = applyLeave + date.toString() + "\n";
+					}
 				}
 				sendmail(getEmailAddress(employee.getEmpName()), "PTO Notification", name + applyLeave);
 			}
@@ -109,10 +115,15 @@ public class MailClient {
 				employee.setNoPTOnoWFH(mergeList(employee.getNoPTOnoWFH(), WFHAndPTODatesFromMail.get("WFH MAIL"), WFHAndPTODatesFromMail.get("PTO MAIL"), employee.getPto()));
 
 				employee.setPtoAppliedInNamelyMailNotSent(employee.getPto());
-				employee.getPtoAppliedInNamelyMailNotSent().removeAll(WFHAndPTODatesFromMail.get("PTO MAIL"));
+				if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
+					employee.getPtoAppliedInNamelyMailNotSent().removeAll(WFHAndPTODatesFromMail.get("PTO MAIL"));
+				}
+
 
 				employee.setPtoMailSentNotAppliedInNamely(WFHAndPTODatesFromMail.get("PTO MAIL"));
-				employee.getPtoMailSentNotAppliedInNamely().removeAll(employee.getPto());
+				if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
+					employee.getPtoMailSentNotAppliedInNamely().removeAll(employee.getPto());
+				}
 			}
 
 			emailFolder.close(false);
