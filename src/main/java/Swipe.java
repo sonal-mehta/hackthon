@@ -6,10 +6,8 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Map;
 
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
@@ -35,41 +33,44 @@ public class Swipe {
 		Workbook workbook = new XSSFWorkbook(inputStream);
 		Sheet firstSheet = workbook.getSheetAt(0);
 		Iterator<Row> iterator = firstSheet.iterator();
-		Map<String, SwipeRecord> recordsMap = new HashMap<String, SwipeRecord>();
-		int index = 0;
-		List<String> dates = new ArrayList<String>();
 
 
 		while (iterator.hasNext()) {
 			Row nextRow = iterator.next();
-			//SwipeRecord record = new SwipeRecord();
 			Iterator<Cell> cellIterator = nextRow.cellIterator();
+			List<String> dates = new ArrayList<String>();
 			SwipeRecord swipeRecord = null;
+			boolean isExisting = false;
 			while (cellIterator.hasNext()) {
 
 				Cell cell = cellIterator.next();
 				if (cell.getRowIndex() > 4) {
+
 					int colIndex = cell.getColumnIndex();
 					switch (colIndex) {
 						case 0:
 							String empId = cell.getStringCellValue();
 							if (recordsMapList.isEmpty()) {
 								swipeRecord = new SwipeRecord();
-							} else {
-								if (isExisting(empId) == null) {
-									swipeRecord = new SwipeRecord();
-								} else {
+							} else if (isExisting(empId) == null) {
+								swipeRecord = new SwipeRecord();
+							}else {
 									swipeRecord = isExisting(empId);
+									isExisting = true;
 								}
-							}
 							swipeRecord.setEmpID(empId);
 							break;
 						case 1:
 							swipeRecord.setEmpName(cell.getStringCellValue());
 							break;
 						case 5:
-							dates.add(index++, cell.getStringCellValue());
-							swipeRecord.setDate(dates);
+							String dateValue = cell.getStringCellValue();
+							if (isExisting) {
+								swipeRecord.getDate().add(dateValue);
+							} else {
+								dates.add(dateValue);
+								swipeRecord.setDate(dates);
+							}
 							break;
 						case 6:
 							swipeRecord.setFirstIn(cell.getStringCellValue());
@@ -80,15 +81,18 @@ public class Swipe {
 					}
 				}
 			}
-		//	recordsMap.put(swipeRecord.getEmpID(), swipeRecord);
-			recordsMapList.add(swipeRecord);
+
+			if (!isExisting && swipeRecord != null) {
+				recordsMapList.add(swipeRecord);
+			}
+			recordsMapList.size();
 		}
 		inputStream.close();
 	}
 
 	private static SwipeRecord isExisting(String empId) {
 		for (SwipeRecord record : recordsMapList) {
-			if (record !=null && record.getEmpID().equalsIgnoreCase(empId)) {
+			if (record != null && record.getEmpID().equalsIgnoreCase(empId)) {
 				return record;
 			}
 		}
