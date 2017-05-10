@@ -13,24 +13,29 @@ import org.apache.commons.configuration.PropertiesConfiguration;
  * Created by sonalmehta on 5/9/17.
  */
 public class Month {
-	static SimpleDateFormat fmt = new SimpleDateFormat("dd-MM-yyyy");
+	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 	InputStream inputStream;
 
-	public static void main(String[] args) {
+	public static List<Date> getWorkDays(Date startDate, Date endDate) {
+		List<String> workDays = new ArrayList<String>();
+		List<String> holiDays = new ArrayList<String>();
+		List<Date> masterDays = new ArrayList<Date>();
 		try {
-			Date startDate = fmt.parse("20-03-2017");
-			Date endDate = fmt.parse("20-04-2017");
-			List<String> workDays = new ArrayList<String>();
-			List<String> holiDays = new ArrayList<String>();
-
+			//	Date startDate = fmt.parse("20/03/2017");
+			//Date endDate = fmt.parse("20/04/2017");
 			workDays = getWorkingDaysBetweenTwoDates(startDate, endDate);
-			holiDays=getHolidays();
+			holiDays = getHolidays();
+			workDays.removeAll(holiDays);
 
+			for (String work : workDays) {
+				masterDays.add(fmt.parse(work));
+			}
 
+			return masterDays;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-
+		return null;
 	}
 
 	public static List<String> getWorkingDaysBetweenTwoDates(Date startDate, Date endDate) {
@@ -63,7 +68,7 @@ public class Month {
 		try {
 			PropertiesConfiguration prop = new PropertiesConfiguration("holidayList.properties");
 			String[] holidays = prop.getStringArray("holiday");
-			List<String> holidayList= Arrays.asList(holidays);
+			List<String> holidayList = Arrays.asList(holidays);
 			return holidayList;
 		} catch (Exception e) {
 			System.out.println("Exception: " + e);
