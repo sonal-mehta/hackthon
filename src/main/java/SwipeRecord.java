@@ -1,3 +1,4 @@
+import java.util.Date;
 import java.util.List;
 
 /**
@@ -7,7 +8,7 @@ public class SwipeRecord {
 
 	private String empID;
 	private String empName;
-	private List<String> date;
+	private List<Date> date;
 	private String firstIn;
 	private String lastOut;
 
@@ -27,11 +28,11 @@ public class SwipeRecord {
 		this.empName = empName;
 	}
 
-	public List<String> getDate() {
+	public List<Date> getDate() {
 		return date;
 	}
 
-	public void setDate(List<String> date) {
+	public void setDate(List<Date> date) {
 		this.date = date;
 	}
 

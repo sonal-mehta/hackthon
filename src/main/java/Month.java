@@ -21,10 +21,11 @@ public class Month {
 			Date startDate = fmt.parse("20-03-2017");
 			Date endDate = fmt.parse("20-04-2017");
 			List<String> workDays = new ArrayList<String>();
+			List<String> holiDays = new ArrayList<String>();
 
 			workDays = getWorkingDaysBetweenTwoDates(startDate, endDate);
-			System.out.print(workDays);
-			getHolidays();
+			holiDays=getHolidays();
+
 
 		} catch (Exception e) {
 			e.printStackTrace();

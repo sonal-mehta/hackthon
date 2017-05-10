@@ -5,7 +5,9 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.Iterator;
 import java.util.List;
 
@@ -23,9 +25,15 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
  */
 public class Swipe {
 	static List<SwipeRecord> recordsMapList = new ArrayList<SwipeRecord>();
+	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 	static String empId;
 
 	public static void main(String[] args) throws IOException {
+		getList();
+	}
+
+	public static void getList() throws IOException {
+
 		String excelFilePath = "//Users//sonalmehta//Downloads//Ref data.xlsx";
 		excelFilePath = excelFilePath.replace("//", File.separator);
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
@@ -33,61 +41,64 @@ public class Swipe {
 		Workbook workbook = new XSSFWorkbook(inputStream);
 		Sheet firstSheet = workbook.getSheetAt(0);
 		Iterator<Row> iterator = firstSheet.iterator();
+		try {
 
+			while (iterator.hasNext()) {
+				Row nextRow = iterator.next();
+				Iterator<Cell> cellIterator = nextRow.cellIterator();
+				List<Date> dates = new ArrayList<Date>();
+				SwipeRecord swipeRecord = null;
+				boolean isExisting = false;
+				while (cellIterator.hasNext()) {
 
-		while (iterator.hasNext()) {
-			Row nextRow = iterator.next();
-			Iterator<Cell> cellIterator = nextRow.cellIterator();
-			List<String> dates = new ArrayList<String>();
-			SwipeRecord swipeRecord = null;
-			boolean isExisting = false;
-			while (cellIterator.hasNext()) {
+					Cell cell = cellIterator.next();
+					if (cell.getRowIndex() > 4) {
 
-				Cell cell = cellIterator.next();
-				if (cell.getRowIndex() > 4) {
-
-					int colIndex = cell.getColumnIndex();
-					switch (colIndex) {
-						case 0:
-							String empId = cell.getStringCellValue();
-							if (recordsMapList.isEmpty()) {
-								swipeRecord = new SwipeRecord();
-							} else if (isExisting(empId) == null) {
-								swipeRecord = new SwipeRecord();
-							}else {
+						int colIndex = cell.getColumnIndex();
+						switch (colIndex) {
+							case 0:
+								String empId = cell.getStringCellValue();
+								if (recordsMapList.isEmpty()) {
+									swipeRecord = new SwipeRecord();
+								} else if (isExisting(empId) == null) {
+									swipeRecord = new SwipeRecord();
+								} else {
 									swipeRecord = isExisting(empId);
 									isExisting = true;
 								}
-							swipeRecord.setEmpID(empId);
-							break;
-						case 1:
-							swipeRecord.setEmpName(cell.getStringCellValue());
-							break;
-						case 5:
-							String dateValue = cell.getStringCellValue();
-							if (isExisting) {
-								swipeRecord.getDate().add(dateValue);
-							} else {
-								dates.add(dateValue);
-								swipeRecord.setDate(dates);
-							}
-							break;
-						case 6:
-							swipeRecord.setFirstIn(cell.getStringCellValue());
-							break;
-						case 7:
-							swipeRecord.setLastOut(cell.getStringCellValue());
-							break;
+								swipeRecord.setEmpID(empId);
+								break;
+							case 1:
+								swipeRecord.setEmpName(cell.getStringCellValue());
+								break;
+							case 5:
+								Date dateValue = fmt.parse(cell.getStringCellValue());
+								if (isExisting) {
+									swipeRecord.getDate().add(dateValue);
+								} else {
+									dates.add(dateValue);
+									swipeRecord.setDate(dates);
+								}
+								break;
+							case 6:
+								swipeRecord.setFirstIn(cell.getStringCellValue());
+								break;
+							case 7:
+								swipeRecord.setLastOut(cell.getStringCellValue());
+								break;
+						}
 					}
 				}
-			}
 
-			if (!isExisting && swipeRecord != null) {
-				recordsMapList.add(swipeRecord);
+				if (!isExisting && swipeRecord != null) {
+					recordsMapList.add(swipeRecord);
+				}
+				recordsMapList.size();
 			}
-			recordsMapList.size();
+			inputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
 		}
-		inputStream.close();
 	}
 
 	private static SwipeRecord isExisting(String empId) {
@@ -96,7 +107,6 @@ public class Swipe {
 				return record;
 			}
 		}
-
 		return null;
 	}
 
