@@ -43,6 +43,10 @@ public class Swipe {
 		for (SwipeRecord swipeRecord : recordsMapList) {
 			setNamelyPTO(swipeRecord);
 		}
+
+		MailClient.checkEmail(recordsMapList);
+
+		MailClient.sendMailsForWFHandPTO(recordsMapList);
 	}
 
 	private static void setNamelyPTO (SwipeRecord swipeRecord) throws IOException, ParseException {

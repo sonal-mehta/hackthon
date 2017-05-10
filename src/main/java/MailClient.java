@@ -24,13 +24,13 @@ import javax.mail.internet.MimeMessage;
  */
 public class MailClient {
 
-	SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
-	String popHost = "pop.gmail.com";
-	String smtphost = "smtp.gmail.com";
-	String username = "equation.academy@gmail.com";
-	String passw = "solution@786";// change accordingly
+	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
+	static String popHost = "pop.gmail.com";
+	static String smtphost = "smtp.gmail.com";
+	static String username = "equation.academy@gmail.com";
+	static String passw = "solution@786";// change accordingly
 
-	public void sendMailsForWFHandPTO(List<SwipeRecord> employees) {
+	public static void sendMailsForWFHandPTO(List<SwipeRecord> employees) {
 
 		for (SwipeRecord employee : employees) {
 			String name = "Hi " + employee.getEmpName() + ",\n";
@@ -67,7 +67,7 @@ public class MailClient {
 		}
 	}
 
-	private void sendmail(String to, String subject, String content) {
+	private static void sendmail(String to, String subject, String content) {
 		Properties props = new Properties();
 		props.put("mail.smtp.auth", "true");
 		props.put("mail.smtp.starttls.enable", "true");
@@ -95,7 +95,7 @@ public class MailClient {
 		}
 	}
 
-	public List<SwipeRecord> checkEmail(List<SwipeRecord> employees) {
+	public static List<SwipeRecord> checkEmail(List<SwipeRecord> employees) {
 		try {
 			Properties properties = new Properties();
 			properties.put("mail.pop3.host", popHost);
@@ -140,11 +140,11 @@ public class MailClient {
 	}
 
 
-	private String getEmailAddress(String fullName) {
+	private static String getEmailAddress(String fullName) {
 		return fullName.trim().replace(" ", ".") + "@appdirect.com".toLowerCase();
 	}
 
-	private Map<String, List<Date>> getWFHAndPTODatesFromMailForEmployee(String email, Message[] messages) {
+	private static Map<String, List<Date>> getWFHAndPTODatesFromMailForEmployee(String email, Message[] messages) {
 		try {
 			List<Date> WFH = new ArrayList<Date>();
 			List<Date> PTO = new ArrayList<Date>();
@@ -167,7 +167,7 @@ public class MailClient {
 		return null;
 	}
 
-	private List<Date> getWFHDate(String subject, List<Date> WFH) {
+	private static List<Date> getWFHDate(String subject, List<Date> WFH) {
 		try {
 			String dateInSubject = subject.trim().split("|")[1].trim();
 			if (dateInSubject.contains("to")) {
@@ -184,7 +184,7 @@ public class MailClient {
 		return WFH;
 	}
 
-	private List<Date> getPTODate(String subject, List<Date> PTO) {
+	private static List<Date> getPTODate(String subject, List<Date> PTO) {
 		try {
 			String dateInSubject = subject.trim().split("|")[1].trim();
 			if (dateInSubject.contains("to")) {
@@ -201,14 +201,14 @@ public class MailClient {
 		return PTO;
 	}
 
-	private List<Date> mergeList(List<Date> noPTONoWFH, List<Date> WFHFromMail, List<Date> PTOFromMail, List<Date> PTOFromNamely) {
+	private static List<Date> mergeList(List<Date> noPTONoWFH, List<Date> WFHFromMail, List<Date> PTOFromMail, List<Date> PTOFromNamely) {
 		noPTONoWFH.addAll(WFHFromMail);
 		noPTONoWFH.addAll(PTOFromMail);
 		noPTONoWFH.addAll(PTOFromNamely);
 		return removeDuplicates(noPTONoWFH);
 	}
 
-	private List<Date> removeDuplicates(List<Date> dupDatesList) {
+	private static List<Date> removeDuplicates(List<Date> dupDatesList) {
 		try {
 			Set<String> dup = new HashSet<String>();
 
