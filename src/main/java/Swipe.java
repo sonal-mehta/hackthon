@@ -5,6 +5,8 @@
 import java.io.File;
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.text.DateFormat;
+import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -24,10 +26,10 @@ public class Swipe {
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 	static Date startDate, endDate;
 
-	public static void main(String[] args) throws IOException {
+	public static void main(String[] args) throws IOException, ParseException {
 		try {
 			List<Date> presentDate = new ArrayList<Date>();
-			String excelFilePath = "//Users//sonalmehta//Downloads//Ref data.xlsx";
+			String excelFilePath = "Ref data.xlsx";
 			recordsMapList = getList(excelFilePath);
 			for (SwipeRecord record : recordsMapList) {
 				List<Date> days = Month.getWorkDays(startDate, endDate);
@@ -38,6 +40,58 @@ public class Swipe {
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
+		for (SwipeRecord swipeRecord : recordsMapList) {
+			setNamelyPTO(swipeRecord);
+		}
+	}
+
+	private static void setNamelyPTO (SwipeRecord swipeRecord) throws IOException, ParseException {
+
+		String excelFilePath = "Books.xlsx";
+		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+		Workbook workbook = new XSSFWorkbook(inputStream);
+		Sheet sheet = workbook.getSheetAt(0);
+		boolean isFirstTime = true;
+		String name = "";
+		Date  leavestartdate= new Date();
+		Date  leaveenddate= new Date();
+		boolean isApproved = true;
+		DateFormat formatter = new SimpleDateFormat("MM/dd/yy");
+		Iterator<Row> itr = sheet.iterator();
+		List<Date> lstDate = new ArrayList<Date>();
+		while (itr.hasNext()) {
+			Row row = itr.next();
+			if (!isFirstTime) {
+				//DataFormatter dataFormatter = new DataFormatter();
+				if(row.getCell(0) != null && row.getCell(1) != null) {
+					name = row.getCell(0).getStringCellValue() + " " + row.getCell(1).getStringCellValue();
+				}
+				if(row.getCell(6) != null) {
+					leavestartdate= row.getCell(6).getDateCellValue();
+				}
+				if(row.getCell(7) != null) {
+					leaveenddate= row.getCell(7).getDateCellValue();
+				}
+				if(row.getCell(11) != null) {
+					isApproved  = row.getCell(11).getBooleanCellValue();
+				}
+			}
+			isFirstTime = false;
+			if(name.equalsIgnoreCase(swipeRecord.getEmpName())){
+
+				if (isApproved != false) {
+					lstDate.addAll(Month.getWorkDays(leavestartdate, leaveenddate));
+				}
+			}
+		}
+		Iterator<Date> iterator =  lstDate.iterator();
+		while (iterator.hasNext()){
+			Date date = iterator.next();
+			if(date.compareTo(Swipe.startDate)<0 || date.compareTo(Swipe.endDate)>0){
+				iterator.remove();
+			}
+		}
+		swipeRecord.setPto(lstDate);
 	}
 
 	public static List<SwipeRecord> getList(String excelFilePath) throws IOException {
