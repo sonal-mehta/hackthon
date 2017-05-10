@@ -12,6 +12,11 @@ public class SwipeRecord {
 	private List<Date> absentDates;
 	private String firstIn;
 	private String lastOut;
+	private List<Date> pto;
+
+	public List<Date> getPto() { return pto; }
+
+	public void setPto(List<Date> pto) { this.pto = pto; }
 
 	public String getEmpID() {
 		return empID;
