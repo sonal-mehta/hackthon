@@ -11,6 +11,9 @@ public class SwipeRecord {
 	private List<Date> date;
 	private String firstIn;
 	private String lastOut;
+	private List<Date> ptoAppliedInNamelyMailNotSent;
+	private List<Date> ptoMailSentNotAppliedInNamely;
+	private List<Date> noPTOnoWFH;
 
 	public String getEmpID() {
 		return empID;
