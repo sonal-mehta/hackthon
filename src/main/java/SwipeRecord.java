@@ -12,11 +12,10 @@ public class SwipeRecord {
 	private List<Date> absentDates;
 	private String firstIn;
 	private String lastOut;
+	private List<Date> ptoAppliedInNamelyMailNotSent;
+	private List<Date> ptoMailSentNotAppliedInNamely;
+	private List<Date> noPTOnoWFH;
 	private List<Date> pto;
-
-	public List<Date> getPto() { return pto; }
-
-	public void setPto(List<Date> pto) { this.pto = pto; }
 
 	public String getEmpID() {
 		return empID;
@@ -61,8 +60,38 @@ public class SwipeRecord {
 	public List<Date> getAbsentDates() {
 		return absentDates;
 	}
+	public List<Date> getPtoAppliedInNamelyMailNotSent() {
+		return ptoAppliedInNamelyMailNotSent;
+	}
 
 	public void setAbsentDates(List<Date> absentDates) {
 		this.absentDates = absentDates;
+	}
+	public List<Date> getPtoMailSentNotAppliedInNamely() {
+		return ptoMailSentNotAppliedInNamely;
+	}
+
+	public List<Date> getNoPTOnoWFH() {
+		return noPTOnoWFH;
+	}
+
+	public List<Date> getPto() {
+		return pto;
+	}
+
+	public void setPtoAppliedInNamelyMailNotSent(List<Date> ptoAppliedInNamelyMailNotSent) {
+		this.ptoAppliedInNamelyMailNotSent = ptoAppliedInNamelyMailNotSent;
+	}
+
+	public void setPtoMailSentNotAppliedInNamely(List<Date> ptoMailSentNotAppliedInNamely) {
+		this.ptoMailSentNotAppliedInNamely = ptoMailSentNotAppliedInNamely;
+	}
+
+	public void setNoPTOnoWFH(List<Date> noPTOnoWFH) {
+		this.noPTOnoWFH = noPTOnoWFH;
+	}
+
+	public void setPto(List<Date> pto) {
+		this.pto = pto;
 	}
 }
