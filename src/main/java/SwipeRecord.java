@@ -8,7 +8,8 @@ public class SwipeRecord {
 
 	private String empID;
 	private String empName;
-	private List<Date> date;
+	private List<Date> presentDates;
+	private List<Date> absentDates;
 	private String firstIn;
 	private String lastOut;
 
@@ -28,12 +29,12 @@ public class SwipeRecord {
 		this.empName = empName;
 	}
 
-	public List<Date> getDate() {
-		return date;
+	public List<Date> getPresentDates() {
+		return presentDates;
 	}
 
-	public void setDate(List<Date> date) {
-		this.date = date;
+	public void setPresentDates(List<Date> presentDates) {
+		this.presentDates = presentDates;
 	}
 
 	public String getFirstIn() {
@@ -52,5 +53,11 @@ public class SwipeRecord {
 		this.lastOut = lastOut;
 	}
 
+	public List<Date> getAbsentDates() {
+		return absentDates;
+	}
 
+	public void setAbsentDates(List<Date> absentDates) {
+		this.absentDates = absentDates;
+	}
 }
