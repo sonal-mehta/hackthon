@@ -31,7 +31,7 @@ public class MailClient {
 	static String username;
 	static String passw;
 
-	MailClient() {
+	static {
 		try {
 			PropertiesConfiguration prop = new PropertiesConfiguration("holidayList.properties");
 			popHost = prop.getString("popHost");
