@@ -2,11 +2,10 @@ import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.HashMap;
-import java.util.HashSet;
+import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 import java.util.Properties;
-import java.util.Set;
 
 import javax.mail.Folder;
 import javax.mail.Message;
@@ -141,7 +140,7 @@ public class MailClient {
 
 
 	private static String getEmailAddress(String fullName) {
-		return fullName.trim().replace(" ", ".") + "@appdirect.com".toLowerCase();
+		return (fullName.trim().replace(" ", ".") + "@appdirect.com").toLowerCase();
 	}
 
 	private static Map<String, List<Date>> getWFHAndPTODatesFromMailForEmployee(String email, Message[] messages) {
@@ -150,13 +149,15 @@ public class MailClient {
 			List<Date> PTO = new ArrayList<Date>();
 			Map<String, List<Date>> WFHAndPTODate = new HashMap<String, List<Date>>();
 			for (Message message : messages) {
-				if (message.getFrom()[0].toString().contains(email) && message.getSubject().contains("[WFH]")) {
+				String from = message.getFrom()[0].toString();
+				String subject = message.getSubject();
+
+				if (from.contains(email) && subject.contains("[WFH]")) {
 					getWFHDate(message.getSubject(), WFH);
 				}
-				if (message.getFrom()[0].toString().contains(email) && message.getSubject().contains("[PTO]")) {
+				if (from.contains(email) && subject.contains("[PTO]")) {
 					getPTODate(message.getSubject(), PTO);
 				}
-				return null;
 			}
 			WFHAndPTODate.put("WFH MAIL", WFH);
 			WFHAndPTODate.put("PTO MAIL", PTO);
@@ -169,7 +170,7 @@ public class MailClient {
 
 	private static List<Date> getWFHDate(String subject, List<Date> WFH) {
 		try {
-			String dateInSubject = subject.trim().split("|")[1].trim();
+			String dateInSubject = subject.trim().split("[|]")[1].trim();
 			if (dateInSubject.contains("to")) {
 				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
 				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
@@ -186,7 +187,7 @@ public class MailClient {
 
 	private static List<Date> getPTODate(String subject, List<Date> PTO) {
 		try {
-			String dateInSubject = subject.trim().split("|")[1].trim();
+			String dateInSubject = subject.trim().split("[|]")[1].trim();
 			if (dateInSubject.contains("to")) {
 				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
 				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
@@ -202,28 +203,23 @@ public class MailClient {
 	}
 
 	private static List<Date> mergeList(List<Date> noPTONoWFH, List<Date> WFHFromMail, List<Date> PTOFromMail, List<Date> PTOFromNamely) {
-		noPTONoWFH.addAll(WFHFromMail);
-		noPTONoWFH.addAll(PTOFromMail);
-		noPTONoWFH.addAll(PTOFromNamely);
-		return removeDuplicates(noPTONoWFH);
+		removeDuplicates(noPTONoWFH, WFHFromMail);
+		removeDuplicates(noPTONoWFH, PTOFromMail);
+		removeDuplicates(noPTONoWFH, PTOFromNamely);
+
+		return noPTONoWFH;
 	}
 
-	private static List<Date> removeDuplicates(List<Date> dupDatesList) {
-		try {
-			Set<String> dup = new HashSet<String>();
-
-			for (Date date : dupDatesList) {
-				dup.add(date.toString());
+	private static List<Date> removeDuplicates(List<Date> list1, List<Date> list2) {
+		Iterator<Date> list1Iterator = list1.iterator();
+		while(list1Iterator.hasNext()) {
+			Date date1 = list1Iterator.next();
+			for (Date date2 : list2) {
+				if (date1.compareTo(date2) == 0) {
+					list1Iterator.remove();
+				}
 			}
-
-			dupDatesList.clear();
-			for (String date : dup) {
-				dupDatesList.add((fmt.parse(date)));
-			}
-			return dupDatesList;
-		} catch (Exception e) {
-			e.printStackTrace();
 		}
-		return dupDatesList;
+		return list1;
 	}
 }
