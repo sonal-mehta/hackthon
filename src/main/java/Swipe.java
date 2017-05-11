@@ -83,7 +83,8 @@ public class Swipe {
 			isFirstTime = false;
 			if(name.equalsIgnoreCase(swipeRecord.getEmpName())){
 				if (isApproved != false) {
-					lstPtoDate.addAll(Month.getWorkDays(leaveStartDate, leaveEndDate));
+					List<Date>lstBetDates = Month.getWorkDays(leaveStartDate, leaveEndDate);
+					lstPtoDate.addAll(lstBetDates);
 				}
 			}
 		}

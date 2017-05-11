@@ -18,16 +18,30 @@ import javax.mail.Transport;
 import javax.mail.internet.InternetAddress;
 import javax.mail.internet.MimeMessage;
 
+import org.apache.commons.configuration.PropertiesConfiguration;
+
 /**
  * Created by tauseef.husain on 5/10/17.
  */
 public class MailClient {
 
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
-	static String popHost = "pop.gmail.com";
-	static String smtphost = "smtp.gmail.com";
-	static String username = "equation.academy@gmail.com";
-	static String passw = "solution@786";// change accordingly
+	static String popHost;
+	static String smtphost;
+	static String username;
+	static String passw;
+
+	MailClient() {
+		try {
+			PropertiesConfiguration prop = new PropertiesConfiguration("holidayList.properties");
+			popHost = prop.getString("popHost");
+			smtphost = prop.getString("smtphost");
+			username = prop.getString("username");
+			passw = prop.getString("passw");
+		} catch (Exception e) {
+			System.out.println("Exception: " + e);
+		}
+	}
 
 	public static void sendMailsForWFHandPTO(List<SwipeRecord> employees) {
 
@@ -41,7 +55,7 @@ public class MailClient {
 					}
 				}
 				abscentContent = abscentContent + "Note : Please apply leave on namely or in case you were doing WFH then drop a mail to attendance.";
-				sendmail(getEmailAddress(employee.getEmpName()), "Attendance Reminder", name + abscentContent);
+				sendmail(getEmailAddress(employee.getEmpName()), "Notification: Absent Days", name + abscentContent);
 			}
 
 			if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
@@ -51,7 +65,7 @@ public class MailClient {
 						sendMailToAttendance = sendMailToAttendance + date.toString() + "\n";
 					}
 				}
-				sendmail(getEmailAddress(employee.getEmpName()), "PTO Notification", name + sendMailToAttendance);
+				sendmail(getEmailAddress(employee.getEmpName()), "Notification: PTO Mail Not Found", name + sendMailToAttendance);
 			}
 
 			if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
@@ -61,7 +75,7 @@ public class MailClient {
 						applyLeave = applyLeave + date.toString() + "\n";
 					}
 				}
-				sendmail(getEmailAddress(employee.getEmpName()), "PTO Notification", name + applyLeave);
+				sendmail(getEmailAddress(employee.getEmpName()), "Notification: Apply PTO On Namely", name + applyLeave);
 			}
 		}
 	}
@@ -83,6 +97,7 @@ public class MailClient {
 
 		try {
 			Message message = new MimeMessage(session);
+			message.setHeader("X-Priority", "1");
 			message.setFrom(new InternetAddress(username));
 			message.setRecipients(Message.RecipientType.TO, InternetAddress.parse(to));
 			message.setSubject(subject);
@@ -110,18 +125,20 @@ public class MailClient {
 			for (SwipeRecord employee : employees) {
 				String requiredEmail = getEmailAddress(employee.getEmpName());
 				Map<String, List<Date>> WFHAndPTODatesFromMail = getWFHAndPTODatesFromMailForEmployee(requiredEmail, messages);
-				employee.setNoPTOnoWFH(employee.getAbsentDates());
+				List<Date> noPtoNoWFH = new ArrayList<Date>(employee.getAbsentDates());
+				employee.setNoPTOnoWFH(noPtoNoWFH);
 				employee.setNoPTOnoWFH(mergeList(employee.getNoPTOnoWFH(), WFHAndPTODatesFromMail.get("WFH MAIL"), WFHAndPTODatesFromMail.get("PTO MAIL"), employee.getPto()));
 
-				employee.setPtoAppliedInNamelyMailNotSent(employee.getPto());
+				List<Date> ptoApplied = new ArrayList<Date>(employee.getPto());
+				employee.setPtoAppliedInNamelyMailNotSent(ptoApplied);
 				if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
 					employee.getPtoAppliedInNamelyMailNotSent().removeAll(WFHAndPTODatesFromMail.get("PTO MAIL"));
 				}
 
-
+				List<Date> ptoNotApplied = new ArrayList<Date>(employee.getPto());
 				employee.setPtoMailSentNotAppliedInNamely(WFHAndPTODatesFromMail.get("PTO MAIL"));
 				if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
-					employee.getPtoMailSentNotAppliedInNamely().removeAll(employee.getPto());
+					employee.getPtoMailSentNotAppliedInNamely().removeAll(ptoNotApplied);
 				}
 			}
 
@@ -212,7 +229,7 @@ public class MailClient {
 
 	private static List<Date> removeDuplicates(List<Date> list1, List<Date> list2) {
 		Iterator<Date> list1Iterator = list1.iterator();
-		while(list1Iterator.hasNext()) {
+		while (list1Iterator.hasNext()) {
 			Date date1 = list1Iterator.next();
 			for (Date date2 : list2) {
 				if (date1.compareTo(date2) == 0) {
