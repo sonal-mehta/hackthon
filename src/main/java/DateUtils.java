@@ -12,7 +12,7 @@ import org.apache.commons.configuration.PropertiesConfiguration;
 /**
  * Created by sonalmehta on 5/9/17.
  */
-public class Month {
+public class DateUtils {
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 	InputStream inputStream;
 

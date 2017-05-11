@@ -4,7 +4,7 @@ import java.util.List;
 /**
  * Created by sonalmehta on 5/8/17.
  */
-public class SwipeRecord {
+public class EmployeeRecord {
 
 	private String empID;
 	private String empName;

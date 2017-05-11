@@ -43,14 +43,14 @@ public class MailClient {
 		}
 	}
 
-	public static void sendMailsForWFHandPTO(List<SwipeRecord> employees) {
+	public static void sendMailsForWFHandPTO(List<EmployeeRecord> employees) {
 
-		for (SwipeRecord employee : employees) {
+		for (EmployeeRecord employee : employees) {
 			String name = "Hi " + employee.getEmpName() + ",\n";
 			if (employee.getNoPTOnoWFH().size() > 0) {
 				String abscentContent = "As per our record, you were absent on following dates:\n";
 				for (Date date : employee.getNoPTOnoWFH()) {
-					if (!(date.compareTo(Swipe.startDate) < 0 || date.compareTo(Swipe.endDate) > 0)) {
+					if (!(date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0)) {
 						abscentContent = abscentContent + date.toString() + "\n";
 					}
 				}
@@ -61,7 +61,7 @@ public class MailClient {
 			if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
 				String sendMailToAttendance = "As per our record, you have applied PTO but didn't sent mail to attendance@appdirect.com for following dates:\n";
 				for (Date date : employee.getPtoAppliedInNamelyMailNotSent()) {
-					if (!(date.compareTo(Swipe.startDate) < 0 || date.compareTo(Swipe.endDate) > 0)) {
+					if (!(date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0)) {
 						sendMailToAttendance = sendMailToAttendance + date.toString() + "\n";
 					}
 				}
@@ -71,7 +71,7 @@ public class MailClient {
 			if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
 				String applyLeave = "As per our record, you have sent an email to attendance@appdirect.com for PTO but you have not applied leave on namely for following dates:\n";
 				for (Date date : employee.getPtoMailSentNotAppliedInNamely()) {
-					if (!(date.compareTo(Swipe.startDate) < 0 || date.compareTo(Swipe.endDate) > 0)) {
+					if (!(date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0)) {
 						applyLeave = applyLeave + date.toString() + "\n";
 					}
 				}
@@ -109,7 +109,7 @@ public class MailClient {
 		}
 	}
 
-	public static List<SwipeRecord> checkEmail(List<SwipeRecord> employees) {
+	public static List<EmployeeRecord> checkEmail(List<EmployeeRecord> employees) {
 		try {
 			Properties properties = new Properties();
 			properties.put("mail.pop3.host", popHost);
@@ -122,7 +122,7 @@ public class MailClient {
 			emailFolder.open(Folder.READ_ONLY);
 			Message[] messages = emailFolder.getMessages();
 
-			for (SwipeRecord employee : employees) {
+			for (EmployeeRecord employee : employees) {
 				String requiredEmail = getEmailAddress(employee.getEmpName());
 				Map<String, List<Date>> WFHAndPTODatesFromMail = getWFHAndPTODatesFromMailForEmployee(requiredEmail, messages);
 				List<Date> noPtoNoWFH = new ArrayList<Date>(employee.getAbsentDates());
@@ -191,7 +191,7 @@ public class MailClient {
 			if (dateInSubject.contains("to")) {
 				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
 				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
-				WFH.addAll(Month.getWorkDays(start, end));
+				WFH.addAll(DateUtils.getWorkDays(start, end));
 			} else {
 				WFH.add(fmt.parse(dateInSubject));
 			}
@@ -208,7 +208,7 @@ public class MailClient {
 			if (dateInSubject.contains("to")) {
 				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
 				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
-				PTO.addAll(Month.getWorkDays(start, end));
+				PTO.addAll(DateUtils.getWorkDays(start, end));
 			} else {
 				PTO.add(fmt.parse(dateInSubject));
 			}

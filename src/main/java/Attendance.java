@@ -20,8 +20,8 @@ import org.apache.poi.ss.usermodel.Sheet;
 import org.apache.poi.ss.usermodel.Workbook;
 import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 
-public class Swipe {
-	static List<SwipeRecord> recordsMapList = new ArrayList<SwipeRecord>();
+public class Attendance {
+	static List<EmployeeRecord> recordsMapList = new ArrayList<EmployeeRecord>();
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
 	static Date startDate, endDate;
 
@@ -30,17 +30,17 @@ public class Swipe {
 			List<Date> presentDate = new ArrayList<Date>();
 			String excelFilePath = "Ref data.xlsx";
 			String excelFilePathNamely = "PTO.xlsx";
-			if(args.length > 0){
+			if (args.length > 0) {
 				excelFilePath = args[0];
-				excelFilePathNamely  = args[0];
+				excelFilePathNamely = args[0];
 			}
 			recordsMapList = getList(excelFilePath);
-			for (SwipeRecord record : recordsMapList) {
-				List<Date> days = Month.getWorkDays(startDate, endDate);
+			for (EmployeeRecord record : recordsMapList) {
+				List<Date> days = DateUtils.getWorkDays(startDate, endDate);
 				presentDate = record.getPresentDates();
 				days.removeAll(presentDate);
 				record.setAbsentDates(days);
-				setPTO(record,excelFilePathNamely);
+				setPTO(record, excelFilePathNamely);
 			}
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -51,7 +51,7 @@ public class Swipe {
 		MailClient.sendMailsForWFHandPTO(recordsMapList);
 	}
 
-	private static void setPTO (SwipeRecord swipeRecord, String excelFilePath) throws IOException, ParseException {
+	private static void setPTO(EmployeeRecord employeeRecord, String excelFilePath) throws IOException, ParseException {
 
 
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
@@ -59,46 +59,46 @@ public class Swipe {
 		Sheet sheet = workbook.getSheetAt(0);
 		boolean isFirstTime = true;
 		String name = "";
-		Date  leaveStartDate= null;
-		Date  leaveEndDate= null;
+		Date leaveStartDate = null;
+		Date leaveEndDate = null;
 		boolean isApproved = true;
 		Iterator<Row> itr = sheet.iterator();
 		List<Date> lstPtoDate = new ArrayList<Date>();
 		while (itr.hasNext()) {
 			Row row = itr.next();
 			if (!isFirstTime) {
-				if(row.getCell(0) != null && row.getCell(1) != null) {
+				if (row.getCell(0) != null && row.getCell(1) != null) {
 					name = row.getCell(0).getStringCellValue() + " " + row.getCell(1).getStringCellValue();
 				}
-				if(row.getCell(6) != null) {
-					leaveStartDate= row.getCell(6).getDateCellValue();
+				if (row.getCell(6) != null) {
+					leaveStartDate = row.getCell(6).getDateCellValue();
 				}
-				if(row.getCell(7) != null) {
-					leaveEndDate= row.getCell(7).getDateCellValue();
+				if (row.getCell(7) != null) {
+					leaveEndDate = row.getCell(7).getDateCellValue();
 				}
-				if(row.getCell(11) != null) {
-					isApproved  = row.getCell(11).getBooleanCellValue();
+				if (row.getCell(11) != null) {
+					isApproved = row.getCell(11).getBooleanCellValue();
 				}
 			}
 			isFirstTime = false;
-			if(name.equalsIgnoreCase(swipeRecord.getEmpName())){
+			if (name.equalsIgnoreCase(employeeRecord.getEmpName())) {
 				if (isApproved != false) {
-					List<Date>lstBetDates = Month.getWorkDays(leaveStartDate, leaveEndDate);
+					List<Date> lstBetDates = DateUtils.getWorkDays(leaveStartDate, leaveEndDate);
 					lstPtoDate.addAll(lstBetDates);
 				}
 			}
 		}
-		Iterator<Date> iterator =  lstPtoDate.iterator();
-		while (iterator.hasNext()){
+		Iterator<Date> iterator = lstPtoDate.iterator();
+		while (iterator.hasNext()) {
 			Date date = iterator.next();
-			if(date.compareTo(Swipe.startDate)<0 || date.compareTo(Swipe.endDate)>0){
+			if (date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0) {
 				iterator.remove();
 			}
 		}
-		swipeRecord.setPto(lstPtoDate);
+		employeeRecord.setPto(lstPtoDate);
 	}
 
-	public static List<SwipeRecord> getList(String excelFilePath) throws IOException {
+	public static List<EmployeeRecord> getList(String excelFilePath) throws IOException {
 		excelFilePath = excelFilePath.replace("//", File.separator);
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 		String[] startEndDates;
@@ -112,7 +112,7 @@ public class Swipe {
 				Row nextRow = iterator.next();
 				Iterator<Cell> cellIterator = nextRow.cellIterator();
 				List<Date> dates = new ArrayList<Date>();
-				SwipeRecord swipeRecord = null;
+				EmployeeRecord employeeRecord = null;
 				boolean isExisting = false;
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
@@ -127,38 +127,38 @@ public class Swipe {
 							case 0:
 								String empId = cell.getStringCellValue();
 								if (recordsMapList.isEmpty()) {
-									swipeRecord = new SwipeRecord();
+									employeeRecord = new EmployeeRecord();
 								} else if (isExisting(empId) == null) {
-									swipeRecord = new SwipeRecord();
+									employeeRecord = new EmployeeRecord();
 								} else {
-									swipeRecord = isExisting(empId);
+									employeeRecord = isExisting(empId);
 									isExisting = true;
 								}
-								swipeRecord.setEmpID(empId);
+								employeeRecord.setEmpID(empId);
 								break;
 							case 1:
-								swipeRecord.setEmpName(cell.getStringCellValue());
+								employeeRecord.setEmpName(cell.getStringCellValue());
 								break;
 							case 5:
 								Date dateValue = fmt.parse(cell.getStringCellValue());
 								if (isExisting) {
-									swipeRecord.getPresentDates().add(dateValue);
+									employeeRecord.getPresentDates().add(dateValue);
 								} else {
 									dates.add(dateValue);
-									swipeRecord.setPresentDates(dates);
+									employeeRecord.setPresentDates(dates);
 								}
 								break;
 							case 6:
-								swipeRecord.setFirstIn(cell.getStringCellValue());
+								employeeRecord.setFirstIn(cell.getStringCellValue());
 								break;
 							case 7:
-								swipeRecord.setLastOut(cell.getStringCellValue());
+								employeeRecord.setLastOut(cell.getStringCellValue());
 								break;
 						}
 					}
 				}
-				if (!isExisting && swipeRecord != null) {
-					recordsMapList.add(swipeRecord);
+				if (!isExisting && employeeRecord != null) {
+					recordsMapList.add(employeeRecord);
 				}
 				recordsMapList.size();
 			}
@@ -169,8 +169,8 @@ public class Swipe {
 		return recordsMapList;
 	}
 
-	private static SwipeRecord isExisting(String empId) {
-		for (SwipeRecord record : recordsMapList) {
+	private static EmployeeRecord isExisting(String empId) {
+		for (EmployeeRecord record : recordsMapList) {
 			if (record != null && record.getEmpID().equalsIgnoreCase(empId)) {
 				return record;
 			}
