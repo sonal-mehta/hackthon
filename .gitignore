@@ -11,3 +11,4 @@ hackthon-1.0-SNAPSHOT-jar-with-dependencies.jar
 target/hackthon-1.0-SNAPSHOT.jar
 target/maven-archiver/
 target/maven-status/
+target/classes/holidayList.properties
