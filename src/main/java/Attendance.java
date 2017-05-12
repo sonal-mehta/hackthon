@@ -32,7 +32,7 @@ public class Attendance {
 			String excelFilePathNamely = "PTO.xlsx";
 			if (args.length > 0) {
 				excelFilePath = args[0];
-				excelFilePathNamely = args[0];
+				excelFilePathNamely = args[1];
 			}
 			recordsMapList = getList(excelFilePath);
 			for (EmployeeRecord record : recordsMapList) {

@@ -6,6 +6,7 @@
 	<groupId>hackthon</groupId>
 	<artifactId>hackthon</artifactId>
 	<version>1.0-SNAPSHOT</version>
+
 	<dependencies>
 		<dependency>
 			<groupId>org.apache.poi</groupId>
@@ -45,6 +46,11 @@
 					<descriptorRefs>
 						<descriptorRef>jar-with-dependencies</descriptorRef>
 					</descriptorRefs>
+					<archive>
+						<manifest>
+							<mainClass>Attendance</mainClass>
+						</manifest>
+					</archive>
 				</configuration>
 			</plugin>
 		</plugins>
