@@ -55,7 +55,7 @@ public class MailClient {
 					}
 				}
 				abscentContent = abscentContent + "Note : Please apply leave on namely or in case you were doing WFH then drop a mail to attendance.";
-				sendmail(getEmailAddress(employee.getEmpName()), "Notification: Absent Days", name + abscentContent);
+				sendmail(employee.getEmailAddress(), "Notification: Absent Days", name + abscentContent);
 			}
 
 			if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
@@ -65,7 +65,7 @@ public class MailClient {
 						sendMailToAttendance = sendMailToAttendance + date.toString() + "\n";
 					}
 				}
-				sendmail(getEmailAddress(employee.getEmpName()), "Notification: PTO Mail Not Found", name + sendMailToAttendance);
+				sendmail(employee.getEmailAddress(), "Notification: PTO Mail Not Found", name + sendMailToAttendance);
 			}
 
 			if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
@@ -75,7 +75,7 @@ public class MailClient {
 						applyLeave = applyLeave + date.toString() + "\n";
 					}
 				}
-				sendmail(getEmailAddress(employee.getEmpName()), "Notification: Apply PTO On Namely", name + applyLeave);
+				sendmail(employee.getEmailAddress(), "Notification: Apply PTO On Namely", name + applyLeave);
 			}
 		}
 	}
@@ -123,8 +123,7 @@ public class MailClient {
 			Message[] messages = emailFolder.getMessages();
 
 			for (EmployeeRecord employee : employees) {
-				String requiredEmail = getEmailAddress(employee.getEmpName());
-				Map<String, List<Date>> WFHAndPTODatesFromMail = getWFHAndPTODatesFromMailForEmployee(requiredEmail, messages);
+				Map<String, List<Date>> WFHAndPTODatesFromMail = getWFHAndPTODatesFromMailForEmployee(employee.getEmailAddress(), messages);
 				List<Date> noPtoNoWFH = new ArrayList<Date>(employee.getAbsentDates());
 				employee.setNoPTOnoWFH(noPtoNoWFH);
 				employee.setNoPTOnoWFH(mergeList(employee.getNoPTOnoWFH(), WFHAndPTODatesFromMail.get("WFH MAIL"), WFHAndPTODatesFromMail.get("PTO MAIL"), employee.getPto()));
@@ -153,11 +152,6 @@ public class MailClient {
 			e.printStackTrace();
 		}
 		return null;
-	}
-
-
-	private static String getEmailAddress(String fullName) {
-		return (fullName.trim().replace(" ", ".") + "@appdirect.com").toLowerCase();
 	}
 
 	private static Map<String, List<Date>> getWFHAndPTODatesFromMailForEmployee(String email, Message[] messages) {

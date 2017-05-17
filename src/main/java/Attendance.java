@@ -30,14 +30,20 @@ public class Attendance {
 			List<Date> presentDate = new ArrayList<Date>();
 			String excelFilePath = "Ref data.xlsx";
 			String excelFilePathNamely = "PTO.xlsx";
+			String excelFilePathEmployeeInfo = "Employee.xlsx";
 			if (args.length > 0) {
 				excelFilePath = args[0];
 				excelFilePathNamely = args[1];
+				excelFilePathEmployeeInfo = args[2];
 			}
-			recordsMapList = getList(excelFilePath);
+
+			recordsMapList = getEmployeeList(excelFilePathEmployeeInfo);
+			recordsMapList = getSwipeDataForEmployee(excelFilePath);
+
 			for (EmployeeRecord record : recordsMapList) {
 				List<Date> days = DateUtils.getWorkDays(startDate, endDate);
 				presentDate = record.getPresentDates();
+				//System.out.println(record.getEmpName());
 				days.removeAll(presentDate);
 				record.setAbsentDates(days);
 				setPTO(record, excelFilePathNamely);
@@ -98,7 +104,76 @@ public class Attendance {
 		employeeRecord.setPto(lstPtoDate);
 	}
 
-	public static List<EmployeeRecord> getList(String excelFilePath) throws IOException {
+	private static EmployeeRecord isExisting(String empName) {
+		for (EmployeeRecord record : recordsMapList) {
+			if (record != null && record.getEmpName().trim().equalsIgnoreCase(empName)) {
+				return record;
+			}
+		}
+		//System.out.println(empName);
+		return null;
+	}
+
+	private static String[] getStartEndDate(String desc) {
+		int count = 0;
+		String[] allMatches = new String[2];
+		Matcher m = Pattern.compile("[\\d]{2}[\\/][\\d]{2}[\\/][\\d]{4}").matcher(desc);
+		while (m.find()) {
+			allMatches[count] = m.group();
+			count++;
+		}
+		return allMatches;
+	}
+
+	public static List<EmployeeRecord> getEmployeeList(String excelFilePath) throws IOException {
+		excelFilePath = excelFilePath.replace("//", File.separator);
+		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
+
+		Workbook workbook = new XSSFWorkbook(inputStream);
+		Sheet firstSheet = workbook.getSheetAt(0);
+		Iterator<Row> iterator = firstSheet.iterator();
+		try {
+			while (iterator.hasNext()) {
+				Row nextRow = iterator.next();
+				Iterator<Cell> cellIterator = nextRow.cellIterator();
+				EmployeeRecord employeeRecord = null;
+				while (cellIterator.hasNext()) {
+					Cell cell = cellIterator.next();
+					if (cell.getRowIndex() >= 1) {
+						int colIndex = cell.getColumnIndex();
+						switch (colIndex) {
+							case 0:
+								employeeRecord = new EmployeeRecord();
+								employeeRecord.setEmpName(cell.getStringCellValue());
+								break;
+							case 1:
+								employeeRecord.setFirstName(cell.getStringCellValue());
+								break;
+							case 2:
+								employeeRecord.setLastName(cell.getStringCellValue());
+								break;
+							case 3:
+								employeeRecord.setEmailAddress(cell.getStringCellValue());
+								break;
+							case 4:
+								employeeRecord.setEmpID(cell.getStringCellValue());
+								break;
+						}
+					}
+				}
+				if (employeeRecord != null) {
+					recordsMapList.add(employeeRecord);
+				}
+			}
+			inputStream.close();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+		return recordsMapList;
+
+	}
+
+	public static List<EmployeeRecord> getSwipeDataForEmployee(String excelFilePath) throws IOException {
 		excelFilePath = excelFilePath.replace("//", File.separator);
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 		String[] startEndDates;
@@ -113,7 +188,7 @@ public class Attendance {
 				Iterator<Cell> cellIterator = nextRow.cellIterator();
 				List<Date> dates = new ArrayList<Date>();
 				EmployeeRecord employeeRecord = null;
-				boolean isExisting = false;
+
 				while (cellIterator.hasNext()) {
 					Cell cell = cellIterator.next();
 					if (cell.getRowIndex() == 1 && cell.getColumnIndex() == 0) {
@@ -124,69 +199,42 @@ public class Attendance {
 					} else if (cell.getRowIndex() > 4) {
 						int colIndex = cell.getColumnIndex();
 						switch (colIndex) {
-							case 0:
-								String empId = cell.getStringCellValue();
-								if (recordsMapList.isEmpty()) {
-									employeeRecord = new EmployeeRecord();
-								} else if (isExisting(empId) == null) {
-									employeeRecord = new EmployeeRecord();
-								} else {
-									employeeRecord = isExisting(empId);
-									isExisting = true;
-								}
-								employeeRecord.setEmpID(empId);
-								break;
 							case 1:
-								employeeRecord.setEmpName(cell.getStringCellValue());
+								String empName = cell.getStringCellValue().trim();
+								employeeRecord = isExisting(empName);
 								break;
 							case 5:
-								Date dateValue = fmt.parse(cell.getStringCellValue());
-								if (isExisting) {
-									employeeRecord.getPresentDates().add(dateValue);
-								} else {
-									dates.add(dateValue);
-									employeeRecord.setPresentDates(dates);
+								if (employeeRecord != null) {
+									Date dateValue = fmt.parse(cell.getStringCellValue());
+									if (employeeRecord.getPresentDates() != null) {
+										employeeRecord.getPresentDates().add(dateValue);
+									} else {
+										dates.add(dateValue);
+										employeeRecord.setPresentDates(dates);
+									}
 								}
 								break;
 							case 6:
-								employeeRecord.setFirstIn(cell.getStringCellValue());
+								if (employeeRecord != null) {
+									employeeRecord.setFirstIn(cell.getStringCellValue());
+								}
 								break;
 							case 7:
-								employeeRecord.setLastOut(cell.getStringCellValue());
-								break;
+								if (employeeRecord != null) {
+									employeeRecord.setLastOut(cell.getStringCellValue());
+									break;
+								}
 						}
 					}
 				}
-				if (!isExisting && employeeRecord != null) {
-					recordsMapList.add(employeeRecord);
-				}
-				recordsMapList.size();
 			}
+			recordsMapList.size();
+
 			inputStream.close();
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
 		return recordsMapList;
-	}
-
-	private static EmployeeRecord isExisting(String empId) {
-		for (EmployeeRecord record : recordsMapList) {
-			if (record != null && record.getEmpID().equalsIgnoreCase(empId)) {
-				return record;
-			}
-		}
-		return null;
-	}
-
-	private static String[] getStartEndDate(String desc) {
-		int count = 0;
-		String[] allMatches = new String[2];
-		Matcher m = Pattern.compile("[\\d]{2}[\\/][\\d]{2}[\\/][\\d]{4}").matcher(desc);
-		while (m.find()) {
-			allMatches[count] = m.group();
-			count++;
-		}
-		return allMatches;
 	}
 
 }

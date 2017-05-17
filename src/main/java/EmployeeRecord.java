@@ -1,3 +1,4 @@
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -8,14 +9,49 @@ public class EmployeeRecord {
 
 	private String empID;
 	private String empName;
-	private List<Date> presentDates;
-	private List<Date> absentDates;
+	private List<Date> presentDates = new ArrayList<Date>();
+	private List<Date> absentDates = new ArrayList<Date>();
+	;
 	private String firstIn;
 	private String lastOut;
-	private List<Date> ptoAppliedInNamelyMailNotSent;
-	private List<Date> ptoMailSentNotAppliedInNamely;
-	private List<Date> noPTOnoWFH;
-	private List<Date> pto;
+	private List<Date> ptoAppliedInNamelyMailNotSent = new ArrayList<Date>();
+	;
+	private List<Date> ptoMailSentNotAppliedInNamely = new ArrayList<Date>();
+	;
+	private List<Date> noPTOnoWFH = new ArrayList<Date>();
+	;
+	private List<Date> pto = new ArrayList<Date>();
+	;
+	private String firstName;
+
+	private String lastName;
+	private String emailAddress;
+
+	public String getLastName() {
+		return lastName;
+	}
+
+	public void setLastName(String lastName) {
+		this.lastName = lastName;
+	}
+
+	public String getEmailAddress() {
+		return emailAddress;
+	}
+
+	public void setEmailAddress(String emailAddress) {
+		this.emailAddress = emailAddress;
+	}
+
+
+	public String getFirstName() {
+		return firstName;
+	}
+
+	public void setFirstName(String firstName) {
+		this.firstName = firstName;
+	}
+
 
 	public String getEmpID() {
 		return empID;
@@ -60,6 +96,7 @@ public class EmployeeRecord {
 	public List<Date> getAbsentDates() {
 		return absentDates;
 	}
+
 	public List<Date> getPtoAppliedInNamelyMailNotSent() {
 		return ptoAppliedInNamelyMailNotSent;
 	}
@@ -67,6 +104,7 @@ public class EmployeeRecord {
 	public void setAbsentDates(List<Date> absentDates) {
 		this.absentDates = absentDates;
 	}
+
 	public List<Date> getPtoMailSentNotAppliedInNamely() {
 		return ptoMailSentNotAppliedInNamely;
 	}
