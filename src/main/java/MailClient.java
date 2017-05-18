@@ -123,19 +123,19 @@ public class MailClient {
 			Message[] messages = emailFolder.getMessages();
 
 			for (EmployeeRecord employee : employees) {
-				Map<String, List<Date>> WFHAndPTODatesFromMail = getWFHAndPTODatesFromMailForEmployee(employee.getEmailAddress(), messages);
+				Map<String, List<Date>> datesFromMail = getDatesFromMailForEmployee(employee.getEmailAddress(), messages);
 				List<Date> noPtoNoWFH = new ArrayList<Date>(employee.getAbsentDates());
 				employee.setNoPTOnoWFH(noPtoNoWFH);
-				employee.setNoPTOnoWFH(mergeList(employee.getNoPTOnoWFH(), WFHAndPTODatesFromMail.get("WFH MAIL"), WFHAndPTODatesFromMail.get("PTO MAIL"), employee.getPto()));
+				employee.setNoPTOnoWFH(mergeList(employee.getNoPTOnoWFH(), datesFromMail.get("WFH MAIL"), datesFromMail.get("PTO MAIL"), employee.getPto(), datesFromMail.get("FAC MAIL"), datesFromMail.get("OOO MAIL")));
 
 				List<Date> ptoApplied = new ArrayList<Date>(employee.getPto());
 				employee.setPtoAppliedInNamelyMailNotSent(ptoApplied);
 				if (employee.getPtoAppliedInNamelyMailNotSent().size() > 0) {
-					employee.getPtoAppliedInNamelyMailNotSent().removeAll(WFHAndPTODatesFromMail.get("PTO MAIL"));
+					employee.getPtoAppliedInNamelyMailNotSent().removeAll(datesFromMail.get("PTO MAIL"));
 				}
 
 				List<Date> ptoNotApplied = new ArrayList<Date>(employee.getPto());
-				employee.setPtoMailSentNotAppliedInNamely(WFHAndPTODatesFromMail.get("PTO MAIL"));
+				employee.setPtoMailSentNotAppliedInNamely(datesFromMail.get("PTO MAIL"));
 				if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
 					employee.getPtoMailSentNotAppliedInNamely().removeAll(ptoNotApplied);
 				}
@@ -154,24 +154,26 @@ public class MailClient {
 		return null;
 	}
 
-	private static Map<String, List<Date>> getWFHAndPTODatesFromMailForEmployee(String email, Message[] messages) {
+	private static Map<String, List<Date>> getDatesFromMailForEmployee(String email, Message[] messages) {
 		try {
 			List<Date> WFH = new ArrayList<Date>();
 			List<Date> PTO = new ArrayList<Date>();
+			List<Date> FAC = new ArrayList<Date>();
+			List<Date> OOO = new ArrayList<Date>();
 			Map<String, List<Date>> WFHAndPTODate = new HashMap<String, List<Date>>();
 			for (Message message : messages) {
 				String from = message.getFrom()[0].toString();
 				String subject = message.getSubject();
 
-				if (from.contains(email) && subject.contains("[WFH]")) {
-					getWFHDate(message.getSubject(), WFH);
-				}
-				if (from.contains(email) && subject.contains("[PTO]")) {
-					getPTODate(message.getSubject(), PTO);
+				if(from.contains(email))
+				{
+					getMailDate(subject, WFH, PTO, FAC, OOO);
 				}
 			}
 			WFHAndPTODate.put("WFH MAIL", WFH);
 			WFHAndPTODate.put("PTO MAIL", PTO);
+			WFHAndPTODate.put("FAC MAIL", FAC);
+			WFHAndPTODate.put("OOO MAIL", OOO);
 			return WFHAndPTODate;
 		} catch (Exception e) {
 			e.printStackTrace();
@@ -179,15 +181,39 @@ public class MailClient {
 		return null;
 	}
 
-	private static List<Date> getWFHDate(String subject, List<Date> WFH) {
+	private static List<Date> getMailDate(String subject, List<Date> WFH, List<Date> PTO, List<Date> FAC, List<Date> OOO) {
 		try {
 			String dateInSubject = subject.trim().split("[|]")[1].trim();
 			if (dateInSubject.contains("to")) {
 				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
 				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
-				WFH.addAll(DateUtils.getWorkDays(start, end));
+				if(subject.contains("[WFH]"))
+				{
+					WFH.addAll(DateUtils.getWorkDays(start, end));
+				}else if(subject.contains("[PTO]"))
+				{
+					PTO.addAll(DateUtils.getWorkDays(start, end));
+				}else if(subject.contains("[FAC]"))
+				{
+					FAC.addAll(DateUtils.getWorkDays(start, end));
+				}else if(subject.contains("[OOO]"))
+				{
+					OOO.addAll(DateUtils.getWorkDays(start, end));
+				}
 			} else {
-				WFH.add(fmt.parse(dateInSubject));
+				if(subject.contains("[WFH]"))
+				{
+					WFH.add(fmt.parse(dateInSubject));
+				}else if(subject.contains("[PTO]"))
+				{
+					PTO.add(fmt.parse(dateInSubject));
+				}else if(subject.contains("[FAC]"))
+				{
+					FAC.add(fmt.parse(dateInSubject));
+				}else if(subject.contains("[OOO]"))
+				{
+					OOO.add(fmt.parse(dateInSubject));
+				}
 			}
 			return WFH;
 		} catch (Exception e) {
@@ -196,27 +222,12 @@ public class MailClient {
 		return WFH;
 	}
 
-	private static List<Date> getPTODate(String subject, List<Date> PTO) {
-		try {
-			String dateInSubject = subject.trim().split("[|]")[1].trim();
-			if (dateInSubject.contains("to")) {
-				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
-				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
-				PTO.addAll(DateUtils.getWorkDays(start, end));
-			} else {
-				PTO.add(fmt.parse(dateInSubject));
-			}
-			return PTO;
-		} catch (Exception e) {
-			e.printStackTrace();
-		}
-		return PTO;
-	}
-
-	private static List<Date> mergeList(List<Date> noPTONoWFH, List<Date> WFHFromMail, List<Date> PTOFromMail, List<Date> PTOFromNamely) {
+	private static List<Date> mergeList(List<Date> noPTONoWFH, List<Date> WFHFromMail, List<Date> PTOFromMail, List<Date> PTOFromNamely, List<Date> FACFromMail, List<Date> OOOFromMail) {
 		removeDuplicates(noPTONoWFH, WFHFromMail);
 		removeDuplicates(noPTONoWFH, PTOFromMail);
 		removeDuplicates(noPTONoWFH, PTOFromNamely);
+		removeDuplicates(noPTONoWFH, FACFromMail);
+		removeDuplicates(noPTONoWFH, OOOFromMail);
 
 		return noPTONoWFH;
 	}
