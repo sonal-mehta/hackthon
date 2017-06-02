@@ -125,7 +125,7 @@ public class Attendance {
 			}
 		}
 		employeeRecord.setPto(lstPtoDate);
-		employeeRecord.setPtoHalfDay(lsthalfPtoDate)
+		employeeRecord.setPtoHalfDay(lsthalfPtoDate);
 	}
 
 	private static EmployeeRecord isExisting(String empName) {
