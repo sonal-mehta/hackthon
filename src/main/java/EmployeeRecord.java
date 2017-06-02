@@ -21,8 +21,7 @@ public class EmployeeRecord {
 	private List<Date> ptoMailSentNotAppliedInNamely = new ArrayList<Date>();
 	private List<Date> noPTOnoWFH = new ArrayList<Date>();
 	private List<Date> pto = new ArrayList<Date>();
-	private List<Date> halfDayNoWFHPTOFACOOO = new ArrayList<Date>();
-	private List<Date> halfDayAppliedButTimeLessThanFour = new ArrayList<Date>();
+	private List<Date> halfDay = new ArrayList<Date>();
 	private String firstName;
 	private String lastName;
 	private String emailAddress;
@@ -149,19 +148,11 @@ public class EmployeeRecord {
 		this.presentDate = presentDate;
 	}
 
-	public List<Date> getHalfDayNoWFHPTOFACOOO() {
-		return halfDayNoWFHPTOFACOOO;
+	public List<Date> getHalfDay() {
+		return halfDay;
 	}
 
-	public void setHalfDayNoWFHPTOFACOOO(List<Date> halfDayNoWFHPTOFACOOO) {
-		this.halfDayNoWFHPTOFACOOO = halfDayNoWFHPTOFACOOO;
-	}
-
-	public List<Date> getHalfDayAppliedButTimeLessThanFour() {
-		return halfDayAppliedButTimeLessThanFour;
-	}
-
-	public void setHalfDayAppliedButTimeLessThanFour(List<Date> halfDayAppliedButTimeLessThanFour) {
-		this.halfDayAppliedButTimeLessThanFour = halfDayAppliedButTimeLessThanFour;
+	public void setHalfDay(List<Date> halfDay) {
+		this.halfDay = halfDay;
 	}
 }

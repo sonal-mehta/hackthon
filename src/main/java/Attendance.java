@@ -240,15 +240,9 @@ public class Attendance {
 						employeeRecord.getPresentDayTime().put(employeeRecord.getPresentDate(), difference);
 						if(difference <= 4)
 						{
-							employeeRecord.getHalfDayNoWFHPTOFACOOO().add(employeeRecord.getPresentDate());
-						}
-
-						if(difference < 4)
-						{
-							employeeRecord.getHalfDayAppliedButTimeLessThanFour().add(employeeRecord.getPresentDate());
+							employeeRecord.getHalfDay().add(employeeRecord.getPresentDate());
 						}
 					}
-
 				}
 			}
 			recordsMapList.size();

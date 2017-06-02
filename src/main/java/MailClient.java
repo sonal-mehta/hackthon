@@ -160,6 +160,8 @@ public class MailClient {
 			List<Date> PTO = new ArrayList<Date>();
 			List<Date> FAC = new ArrayList<Date>();
 			List<Date> OOO = new ArrayList<Date>();
+			List<Date> WFHHALF = new ArrayList<Date>();
+			List<Date> PTOHALF = new ArrayList<Date>();
 			Map<String, List<Date>> WFHAndPTODate = new HashMap<String, List<Date>>();
 			for (Message message : messages) {
 				String from = message.getFrom()[0].toString();
@@ -174,6 +176,8 @@ public class MailClient {
 			WFHAndPTODate.put("PTO MAIL", PTO);
 			WFHAndPTODate.put("FAC MAIL", FAC);
 			WFHAndPTODate.put("OOO MAIL", OOO);
+			WFHAndPTODate.put("WFH HALFDAY MAIL", WFHHALF);
+			WFHAndPTODate.put("PTO HALFDAY MAIL", PTOHALF);
 			return WFHAndPTODate;
 		} catch (Exception e) {
 			e.printStackTrace();
