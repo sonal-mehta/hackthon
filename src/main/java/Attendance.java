@@ -73,8 +73,10 @@ public class Attendance {
 		Date leaveStartDate = null;
 		Date leaveEndDate = null;
 		boolean isApproved = true;
+		double daysOff ;
 		Iterator<Row> itr = sheet.iterator();
 		List<Date> lstPtoDate = new ArrayList<Date>();
+		List<Date> lsthalfPtoDate = new ArrayList<Date>();
 		while (itr.hasNext()) {
 			Row row = itr.next();
 			if (!isFirstTime) {
@@ -90,12 +92,21 @@ public class Attendance {
 				if (row.getCell(11) != null) {
 					isApproved = row.getCell(11).getBooleanCellValue();
 				}
+				if (row.getCell(9) != null) {
+					daysOff = row.getCell(9).getNumericCellValue();
+				}
 			}
 			isFirstTime = false;
 			if (name.equalsIgnoreCase(employeeRecord.getEmpName())) {
 				if (isApproved != false) {
 					List<Date> lstBetDates = DateUtils.getWorkDays(leaveStartDate, leaveEndDate);
-					lstPtoDate.addAll(lstBetDates);
+					for(Date date:lstBetDates) {
+						if(employeeRecord.getPresentDates().contains(date)){
+							lsthalfPtoDate.add(date);
+						}else{
+							lstPtoDate.add(date);
+						}
+					}
 				}
 			}
 		}

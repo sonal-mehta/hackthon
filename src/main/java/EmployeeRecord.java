@@ -21,6 +21,7 @@ public class EmployeeRecord {
 	private List<Date> ptoMailSentNotAppliedInNamely = new ArrayList<Date>();
 	private List<Date> noPTOnoWFH = new ArrayList<Date>();
 	private List<Date> pto = new ArrayList<Date>();
+	private List<Date> ptoHalfDay = new ArrayList<Date>();
 	private List<Date> halfDay = new ArrayList<Date>();
 	private String firstName;
 	private String lastName;
@@ -74,6 +75,7 @@ public class EmployeeRecord {
 
 	public void setPresentDates(List<Date> presentDates) {
 		this.presentDates = presentDates;
+
 	}
 
 	public String getFirstIn() {
@@ -154,5 +156,8 @@ public class EmployeeRecord {
 
 	public void setHalfDay(List<Date> halfDay) {
 		this.halfDay = halfDay;
+	}
+	public List<Date> getPtoHalfDay() {
+		return ptoHalfDay;
 	}
 }
