@@ -169,7 +169,7 @@ public class MailClient {
 
 				if(from.contains(email))
 				{
-					getMailDate(subject, WFH, PTO, FAC, OOO);
+					getMailDate(subject, WFH, PTO, FAC, OOO,WFHHALF,PTOHALF);
 				}
 			}
 			WFHAndPTODate.put("WFH MAIL", WFH);
@@ -185,45 +185,77 @@ public class MailClient {
 		return null;
 	}
 
-	private static List<Date> getMailDate(String subject, List<Date> WFH, List<Date> PTO, List<Date> FAC, List<Date> OOO) {
+	private static void getMailDate(String subject, List<Date> WFH, List<Date> PTO, List<Date> FAC, List<Date> OOO, List<Date>WFHHALF, List<Date>PTOHALF) {
 		try {
 			String dateInSubject = subject.trim().split("[|]")[1].trim();
-			if (dateInSubject.contains("to")) {
-				Date start = fmt.parse(dateInSubject.split("to")[0].trim());
-				Date end = fmt.parse(dateInSubject.split("to")[1].trim());
-				if(subject.contains("[WFH]"))
-				{
-					WFH.addAll(DateUtils.getWorkDays(start, end));
-				}else if(subject.contains("[PTO]"))
-				{
-					PTO.addAll(DateUtils.getWorkDays(start, end));
-				}else if(subject.contains("[FAC]"))
-				{
-					FAC.addAll(DateUtils.getWorkDays(start, end));
-				}else if(subject.contains("[OOO]"))
-				{
-					OOO.addAll(DateUtils.getWorkDays(start, end));
-				}
-			} else {
-				if(subject.contains("[WFH]"))
-				{
-					WFH.add(fmt.parse(dateInSubject));
-				}else if(subject.contains("[PTO]"))
-				{
-					PTO.add(fmt.parse(dateInSubject));
-				}else if(subject.contains("[FAC]"))
-				{
-					FAC.add(fmt.parse(dateInSubject));
-				}else if(subject.contains("[OOO]"))
-				{
-					OOO.add(fmt.parse(dateInSubject));
+			if(subject.contains("Half"))
+			{
+				String halfDayDate = dateInSubject.split("Half Day")[0].trim();
+				if (dateInSubject.contains("to")) {
+					Date start = fmt.parse(halfDayDate.split("to")[0].trim());
+					Date end = fmt.parse(halfDayDate.split("to")[1].trim());
+					if(subject.contains("[WFH]"))
+					{
+						WFH.addAll(DateUtils.getWorkDays(start, end));
+					}else if(subject.contains("[PTO]"))
+					{
+						PTO.addAll(DateUtils.getWorkDays(start, end));
+					}else if(subject.contains("[OOO]"))
+					{
+						OOO.addAll(DateUtils.getWorkDays(start, end));
+					}
+				} else {
+					if(subject.contains("[WFH]"))
+					{
+						WFH.add(fmt.parse(halfDayDate));
+					}else if(subject.contains("[PTO]"))
+					{
+						PTO.add(fmt.parse(halfDayDate));
+					}else if(subject.contains("[OOO]"))
+					{
+						OOO.add(fmt.parse(halfDayDate));
+					}
 				}
 			}
-			return WFH;
+			else
+			{
+				if (dateInSubject.contains("to")) {
+					Date start = fmt.parse(dateInSubject.split("to")[0].trim());
+					Date end = fmt.parse(dateInSubject.split("to")[1].trim());
+					if(subject.contains("[WFH]"))
+					{
+						WFH.addAll(DateUtils.getWorkDays(start, end));
+					}else if(subject.contains("[PTO]"))
+					{
+						PTO.addAll(DateUtils.getWorkDays(start, end));
+					}else if(subject.contains("[FAC]"))
+					{
+						FAC.addAll(DateUtils.getWorkDays(start, end));
+					}else if(subject.contains("[OOO]"))
+					{
+						OOO.addAll(DateUtils.getWorkDays(start, end));
+					}
+				} else {
+					if(subject.contains("[WFH]"))
+					{
+						WFH.add(fmt.parse(dateInSubject));
+					}else if(subject.contains("[PTO]"))
+					{
+						PTO.add(fmt.parse(dateInSubject));
+					}else if(subject.contains("[FAC]"))
+					{
+						FAC.add(fmt.parse(dateInSubject));
+					}else if(subject.contains("[OOO]"))
+					{
+						OOO.add(fmt.parse(dateInSubject));
+					}
+				}
+			}
+
+			return;
 		} catch (Exception e) {
 			e.printStackTrace();
 		}
-		return WFH;
 	}
 
 	private static List<Date> mergeList(List<Date> noPTONoWFH, List<Date> WFHFromMail, List<Date> PTOFromMail, List<Date> PTOFromNamely, List<Date> FACFromMail, List<Date> OOOFromMail) {
