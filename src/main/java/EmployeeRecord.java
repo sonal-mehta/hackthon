@@ -19,6 +19,8 @@ public class EmployeeRecord {
 	private String lastOut;
 	private List<Date> ptoAppliedInNamelyMailNotSent = new ArrayList<Date>();
 	private List<Date> ptoMailSentNotAppliedInNamely = new ArrayList<Date>();
+	private List<Date> ptoAppliedAsHalfDayInNamelyMailNotSent = new ArrayList<Date>();
+	private List<Date> ptoMailSentAsHalfDayNotAppliedInNamely = new ArrayList<Date>();
 	private List<Date> noPTOnoWFH = new ArrayList<Date>();
 	private List<Date> pto = new ArrayList<Date>();
 	private List<Date> ptoHalfDay = new ArrayList<Date>();
@@ -162,5 +164,19 @@ public class EmployeeRecord {
 	}
 	public void setPtoHalfDay(List<Date> ptoHalfDay) {
 		this.ptoHalfDay = ptoHalfDay;
+	}
+	public List<Date> getPtoMailSentAsHalfDayNotAppliedInNamely() {
+		return ptoMailSentAsHalfDayNotAppliedInNamely;
+	}
+
+	public void setPtoMailSentAsHalfDayNotAppliedInNamely(List<Date> ptoMailSentAsHalfDayNotAppliedInNamely) {
+		this.ptoMailSentAsHalfDayNotAppliedInNamely = ptoMailSentAsHalfDayNotAppliedInNamely;
+	}
+	public List<Date> getPtoAppliedAsHalfDayInNamelyMailNotSent() {
+		return ptoAppliedAsHalfDayInNamelyMailNotSent;
+	}
+
+	public void setPtoAppliedAsHalfDayInNamelyMailNotSent(List<Date> ptoAppliedAsHalfDayInNamelyMailNotSent) {
+		this.ptoAppliedAsHalfDayInNamelyMailNotSent = ptoAppliedAsHalfDayInNamelyMailNotSent;
 	}
 }

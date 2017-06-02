@@ -77,6 +77,37 @@ public class MailClient {
 				}
 				sendmail(employee.getEmailAddress(), "Notification: Apply PTO On Namely", name + applyLeave);
 			}
+
+			if (employee.getHalfDay().size() > 0) {
+				String abscentContent = "As per our record, you were absent for half days on following dates:\n";
+				for (Date date : employee.getHalfDay()) {
+					if (!(date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0)) {
+						abscentContent = abscentContent + date.toString() + "\n";
+					}
+				}
+				abscentContent = abscentContent + "Note : Please apply half day leave on namely or in case you were doing WFH for half day then drop a mail to attendance.";
+				sendmail(employee.getEmailAddress(), "Notification: Half Day Absent Dates", name + abscentContent);
+			}
+
+			if (employee.getPtoAppliedAsHalfDayInNamelyMailNotSent().size() > 0) {
+				String sendMailToAttendance = "As per our record, you have applied half day PTO but didn't sent mail to attendance@appdirect.com for following dates:\n";
+				for (Date date : employee.getPtoAppliedAsHalfDayInNamelyMailNotSent()) {
+					if (!(date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0)) {
+						sendMailToAttendance = sendMailToAttendance + date.toString() + "\n";
+					}
+				}
+				sendmail(employee.getEmailAddress(), "Notification: Half Day PTO Mail Not Found", name + sendMailToAttendance);
+			}
+
+			if (employee.getPtoMailSentAsHalfDayNotAppliedInNamely().size() > 0) {
+				String applyLeave = "As per our record, you have sent an email to attendance@appdirect.com for half day PTO but you have not applied leave on namely for following dates:\n";
+				for (Date date : employee.getPtoMailSentAsHalfDayNotAppliedInNamely()) {
+					if (!(date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0)) {
+						applyLeave = applyLeave + date.toString() + "\n";
+					}
+				}
+				sendmail(employee.getEmailAddress(), "Notification: Apply Half Day PTO On Namely", name + applyLeave);
+			}
 		}
 	}
 
@@ -139,6 +170,23 @@ public class MailClient {
 				if (employee.getPtoMailSentNotAppliedInNamely().size() > 0) {
 					employee.getPtoMailSentNotAppliedInNamely().removeAll(ptoNotApplied);
 				}
+
+				employee.getHalfDay().addAll(getduplicate(employee.getPto(), datesFromMail.get("PTO HALFDAY MAIL")));
+				List<Date> noHalfPtoNoHalfWFH = new ArrayList<Date>(employee.getHalfDay());
+				employee.setHalfDay(mergeList(noHalfPtoNoHalfWFH,datesFromMail.get("WFH HALFDAY MAIL"), datesFromMail.get("PTO HALFDAY MAIL"),employee.getPtoHalfDay(),null,datesFromMail.get("OOO HALFDAY MAIL")));
+
+				List<Date> halfPtoApplied = new ArrayList<Date>(employee.getPtoHalfDay());
+				employee.setPtoAppliedAsHalfDayInNamelyMailNotSent(halfPtoApplied);
+				if (employee.getPtoAppliedAsHalfDayInNamelyMailNotSent().size() > 0) {
+					employee.getPtoAppliedAsHalfDayInNamelyMailNotSent().removeAll(datesFromMail.get("PTO HALFDAY MAIL"));
+				}
+
+				List<Date> ptoHalfNotApplied = new ArrayList<Date>(employee.getPtoHalfDay());
+				employee.setPtoMailSentAsHalfDayNotAppliedInNamely(datesFromMail.get("PTO HALFDAY MAIL"));
+				if (employee.getPtoMailSentAsHalfDayNotAppliedInNamely().size() > 0) {
+					employee.getPtoMailSentAsHalfDayNotAppliedInNamely().removeAll(ptoHalfNotApplied);
+				}
+
 			}
 
 			emailFolder.close(false);
@@ -272,6 +320,10 @@ public class MailClient {
 	}
 
 	private static List<Date> removeDuplicates(List<Date> list1, List<Date> list2) {
+		if(list2 == null)
+		{
+			return list1;
+		}
 		Iterator<Date> list1Iterator = list1.iterator();
 		while (list1Iterator.hasNext()) {
 			Date date1 = list1Iterator.next();
@@ -282,5 +334,17 @@ public class MailClient {
 			}
 		}
 		return list1;
+	}
+
+	private static List<Date> getduplicate(List<Date> list1, List<Date> list2)
+	{
+		List<Date> dup = new ArrayList<Date>();
+		for(Date date:list2){
+			if(list1.contains(date))
+			{
+				dup.add(date);
+			}
+		}
+		return dup;
 	}
 }
