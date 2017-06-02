@@ -7,6 +7,9 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.time.Duration;
+import java.time.LocalTime;
+import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.Date;
 import java.util.Iterator;
@@ -14,6 +17,7 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+import org.apache.commons.lang.StringUtils;
 import org.apache.poi.ss.usermodel.Cell;
 import org.apache.poi.ss.usermodel.Row;
 import org.apache.poi.ss.usermodel.Sheet;
@@ -23,6 +27,7 @@ import org.apache.poi.xssf.usermodel.XSSFWorkbook;
 public class Attendance {
 	static List<EmployeeRecord> recordsMapList = new ArrayList<EmployeeRecord>();
 	static SimpleDateFormat fmt = new SimpleDateFormat("dd/MM/yyyy");
+	static DateTimeFormatter timeFormatter = DateTimeFormatter.ofPattern("HH:mm:ss");
 	static Date startDate, endDate;
 
 	public static void main(String[] args) throws IOException {
@@ -206,6 +211,7 @@ public class Attendance {
 							case 5:
 								if (employeeRecord != null) {
 									Date dateValue = fmt.parse(cell.getStringCellValue());
+									employeeRecord.setPresentDate(dateValue);
 									if (employeeRecord.getPresentDates() != null) {
 										employeeRecord.getPresentDates().add(dateValue);
 									} else {
@@ -226,6 +232,23 @@ public class Attendance {
 								}
 						}
 					}
+					if(StringUtils.isNotBlank(employeeRecord.getFirstIn()) && StringUtils.isNotBlank(employeeRecord.getLastOut()))
+					{
+						LocalTime firstIn = LocalTime.parse(employeeRecord.getFirstIn(), timeFormatter);
+						LocalTime lastOut = LocalTime.parse(employeeRecord.getLastOut(), timeFormatter);
+						Long difference = Duration.between(lastOut, firstIn).toMinutes();
+						employeeRecord.getPresentDayTime().put(employeeRecord.getPresentDate(), difference);
+						if(difference <= 4)
+						{
+							employeeRecord.getHalfDayNoWFHPTOFACOOO().add(employeeRecord.getPresentDate());
+						}
+
+						if(difference < 4)
+						{
+							employeeRecord.getHalfDayAppliedButTimeLessThanFour().add(employeeRecord.getPresentDate());
+						}
+					}
+
 				}
 			}
 			recordsMapList.size();

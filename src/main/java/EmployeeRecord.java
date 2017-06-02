@@ -1,6 +1,8 @@
 import java.util.ArrayList;
 import java.util.Date;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by sonalmehta on 5/8/17.
@@ -9,21 +11,19 @@ public class EmployeeRecord {
 
 	private String empID;
 	private String empName;
+	private Date presentDate;
 	private List<Date> presentDates = new ArrayList<Date>();
 	private List<Date> absentDates = new ArrayList<Date>();
-	;
+	private Map<Date, Long> presentDayTime = new HashMap<Date, Long>();
 	private String firstIn;
 	private String lastOut;
 	private List<Date> ptoAppliedInNamelyMailNotSent = new ArrayList<Date>();
-	;
 	private List<Date> ptoMailSentNotAppliedInNamely = new ArrayList<Date>();
-	;
 	private List<Date> noPTOnoWFH = new ArrayList<Date>();
-	;
 	private List<Date> pto = new ArrayList<Date>();
-	;
+	private List<Date> halfDayNoWFHPTOFACOOO = new ArrayList<Date>();
+	private List<Date> halfDayAppliedButTimeLessThanFour = new ArrayList<Date>();
 	private String firstName;
-
 	private String lastName;
 	private String emailAddress;
 
@@ -131,5 +131,37 @@ public class EmployeeRecord {
 
 	public void setPto(List<Date> pto) {
 		this.pto = pto;
+	}
+
+	public Map<Date, Long> getPresentDayTime() {
+		return presentDayTime;
+	}
+
+	public void setPresentDayTime(Map<Date, Long> presentDayTime) {
+		this.presentDayTime = presentDayTime;
+	}
+
+	public Date getPresentDate() {
+		return presentDate;
+	}
+
+	public void setPresentDate(Date presentDate) {
+		this.presentDate = presentDate;
+	}
+
+	public List<Date> getHalfDayNoWFHPTOFACOOO() {
+		return halfDayNoWFHPTOFACOOO;
+	}
+
+	public void setHalfDayNoWFHPTOFACOOO(List<Date> halfDayNoWFHPTOFACOOO) {
+		this.halfDayNoWFHPTOFACOOO = halfDayNoWFHPTOFACOOO;
+	}
+
+	public List<Date> getHalfDayAppliedButTimeLessThanFour() {
+		return halfDayAppliedButTimeLessThanFour;
+	}
+
+	public void setHalfDayAppliedButTimeLessThanFour(List<Date> halfDayAppliedButTimeLessThanFour) {
+		this.halfDayAppliedButTimeLessThanFour = halfDayAppliedButTimeLessThanFour;
 	}
 }
