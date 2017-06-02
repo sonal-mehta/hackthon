@@ -111,13 +111,21 @@ public class Attendance {
 			}
 		}
 		Iterator<Date> iterator = lstPtoDate.iterator();
+		Iterator<Date> iteratorHalf = lsthalfPtoDate.iterator();
 		while (iterator.hasNext()) {
 			Date date = iterator.next();
 			if (date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0) {
 				iterator.remove();
 			}
 		}
+		while (iteratorHalf.hasNext()) {
+			Date date = iteratorHalf.next();
+			if (date.compareTo(Attendance.startDate) < 0 || date.compareTo(Attendance.endDate) > 0) {
+				iteratorHalf.remove();
+			}
+		}
 		employeeRecord.setPto(lstPtoDate);
+		employeeRecord.setPtoHalfDay(lsthalfPtoDate)
 	}
 
 	private static EmployeeRecord isExisting(String empName) {

@@ -160,4 +160,7 @@ public class EmployeeRecord {
 	public List<Date> getPtoHalfDay() {
 		return ptoHalfDay;
 	}
+	public void setPtoHalfDay(List<Date> ptoHalfDay) {
+		this.ptoHalfDay = ptoHalfDay;
+	}
 }
