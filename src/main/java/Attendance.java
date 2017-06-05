@@ -201,6 +201,7 @@ public class Attendance {
 		excelFilePath = excelFilePath.replace("//", File.separator);
 		FileInputStream inputStream = new FileInputStream(new File(excelFilePath));
 		String[] startEndDates;
+		int rowIndex=0;
 
 		Workbook workbook = new XSSFWorkbook(inputStream);
 		Sheet firstSheet = workbook.getSheetAt(0);
@@ -221,6 +222,7 @@ public class Attendance {
 						startDate = fmt.parse(startEndDates[0]);
 						endDate = fmt.parse(startEndDates[1]);
 					} else if (cell.getRowIndex() > 4) {
+						rowIndex=cell.getRowIndex();
 						int colIndex = cell.getColumnIndex();
 						switch (colIndex) {
 							case 1:
@@ -251,14 +253,14 @@ public class Attendance {
 								}
 						}
 					}
-					if(StringUtils.isNotBlank(employeeRecord.getFirstIn()) && StringUtils.isNotBlank(employeeRecord.getLastOut()))
-					{
+				}
+				if (rowIndex > 4) {
+					if (StringUtils.isNotBlank(employeeRecord.getFirstIn()) && StringUtils.isNotBlank(employeeRecord.getLastOut())) {
 						LocalTime firstIn = LocalTime.parse(employeeRecord.getFirstIn(), timeFormatter);
 						LocalTime lastOut = LocalTime.parse(employeeRecord.getLastOut(), timeFormatter);
-						Long difference = Duration.between(lastOut, firstIn).toMinutes();
+						Long difference = Duration.between(firstIn,lastOut).toMinutes();
 						employeeRecord.getPresentDayTime().put(employeeRecord.getPresentDate(), difference);
-						if(difference <= 4)
-						{
+						if (difference <= 240) {
 							employeeRecord.getHalfDay().add(employeeRecord.getPresentDate());
 						}
 					}

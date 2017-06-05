@@ -146,6 +146,7 @@ public class MailClient {
 			properties.put("mail.pop3.host", popHost);
 			properties.put("mail.pop3.port", "995");
 			properties.put("mail.pop3.starttls.enable", "true");
+			properties.put("mail.pop3.debug","true");
 			Session emailSession = Session.getDefaultInstance(properties);
 			Store store = emailSession.getStore("pop3s");
 			store.connect(popHost, username, passw);
@@ -226,7 +227,7 @@ public class MailClient {
 			WFHAndPTODate.put("FAC MAIL", FAC);
 			WFHAndPTODate.put("OOO MAIL", OOO);
 			WFHAndPTODate.put("WFH HALFDAY MAIL", WFHHALF);
-			WFHAndPTODate.put("OOO HALFDAY MAIL", PTOHALF);
+			WFHAndPTODate.put("PTO HALFDAY MAIL", PTOHALF);
 			WFHAndPTODate.put("OOO HALFDAY MAIL", OOOHALF);
 
 			return WFHAndPTODate;
@@ -336,13 +337,13 @@ public class MailClient {
 		return list1;
 	}
 
-	private static List<Date> getduplicate(List<Date> list1, List<Date> list2)
-	{
+	private static List<Date> getduplicate(List<Date> list1, List<Date> list2) {
 		List<Date> dup = new ArrayList<Date>();
-		for(Date date:list2){
-			if(list1.contains(date))
-			{
-				dup.add(date);
+		if (list2 != null && list1 != null) {
+			for (Date date : list2) {
+				if (list1.contains(date)) {
+					dup.add(date);
+				}
 			}
 		}
 		return dup;
